@@ -21,7 +21,6 @@ import (
 
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
-	networkingv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
@@ -62,7 +61,6 @@ func (d *FrontendDeployer) Generate(crdObject client.Object) ([]client.Object, e
 		BuildConfigMap().
 		BuildDeployment().
 		BuildPodMonitor().
-		BuildIngress().
 		SetControllerAndAnnotation().
 		Generate()
 
@@ -333,74 +331,6 @@ func (b *frontendBuilder) BuildPodMonitor() deployer.Builder {
 			}
 			b.Objects = append(b.Objects, pm)
 		}
-	}
-
-	return b
-}
-
-func (b *frontendBuilder) generateIngress() {
-	var rules []networkingv1.IngressRule
-	for _, rule := range b.Cluster.GetIngress().Rules {
-		ingressRule := networkingv1.IngressRule{
-			Host: rule.Host,
-		}
-
-		var paths []networkingv1.HTTPIngressPath
-		for _, backend := range rule.IngressBackend {
-			paths = append(paths, networkingv1.HTTPIngressPath{
-				Path:     backend.Path,
-				PathType: backend.PathType,
-				Backend: networkingv1.IngressBackend{
-					Service: &networkingv1.IngressServiceBackend{
-						Name: common.ResourceName(b.Cluster.Name, b.RoleKind, backend.Name),
-						Port: networkingv1.ServiceBackendPort{
-							Number: b.Cluster.Spec.HTTPPort,
-						},
-					},
-				},
-			})
-		}
-		ingressRule.HTTP = &networkingv1.HTTPIngressRuleValue{
-			Paths: paths,
-		}
-
-		rules = append(rules, ingressRule)
-	}
-
-	ing := &networkingv1.Ingress{
-		TypeMeta: metav1.TypeMeta{
-			Kind:       "Ingress",
-			APIVersion: "networking.k8s.io/v1",
-		},
-		ObjectMeta: metav1.ObjectMeta{
-			Namespace:   b.Cluster.Namespace,
-			Name:        b.Cluster.Name,
-			Annotations: b.Cluster.GetIngress().Annotations,
-			Labels: util.MergeStringMap(b.Cluster.GetIngress().Labels, map[string]string{
-				constant.GreptimeDBComponentName: b.Cluster.Name,
-			}),
-		},
-		Spec: networkingv1.IngressSpec{
-			IngressClassName: b.Cluster.GetIngress().IngressClassName,
-			TLS:              b.Cluster.GetIngress().TLS,
-			Rules:            rules,
-		},
-	}
-
-	b.Objects = append(b.Objects, ing)
-}
-
-func (b *frontendBuilder) BuildIngress() deployer.Builder {
-	if b.Err != nil {
-		return b
-	}
-
-	if b.Cluster.GetFrontend() == nil && len(b.Cluster.GetFrontendGroups()) == 0 {
-		return b
-	}
-
-	if b.Cluster.GetIngress() != nil && len(b.Cluster.GetIngress().Rules) != 0 {
-		b.generateIngress()
 	}
 
 	return b

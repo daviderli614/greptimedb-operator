@@ -21,7 +21,6 @@ import (
 	monitoringv1 "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
-	networkingv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
@@ -51,9 +50,6 @@ type Builder interface {
 
 	// BuildPodMonitor builds a Prometheus podmonitor.
 	BuildPodMonitor() Builder
-
-	// BuildIngress builds a K8s ingress.
-	BuildIngress() Builder
 
 	// BuildGreptimeDBStandalone builds a GreptimeDBStandalone.
 	BuildGreptimeDBStandalone() Builder
@@ -97,10 +93,6 @@ func (b *DefaultBuilder) BuildPodMonitor() Builder {
 	return b
 }
 
-func (b *DefaultBuilder) BuildIngress() Builder {
-	return b
-}
-
 func (b *DefaultBuilder) BuildGreptimeDBStandalone() Builder {
 	return b
 }
@@ -126,9 +118,6 @@ func (b *DefaultBuilder) SetControllerAndAnnotation() Builder {
 			spec = v.Spec
 			controlled = v
 		case *monitoringv1.PodMonitor:
-			spec = v.Spec
-			controlled = v
-		case *networkingv1.Ingress:
 			spec = v.Spec
 			controlled = v
 		case *greptimev1alpha1.GreptimeDBStandalone:

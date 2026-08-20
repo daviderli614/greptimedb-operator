@@ -114,67 +114,6 @@ func (h *Helper) RunHTTPTest(url, data, httpMethod string) error {
 	return nil
 }
 
-// AddIPToHosts adds the loadBalancer IP and host to the /etc/hosts file.
-func (h *Helper) AddIPToHosts(ip string, host string) error {
-	const (
-		hostsFile = "/etc/hosts"
-	)
-
-	// Read the current contents of the /etc/hosts file
-	content, err := os.ReadFile(hostsFile)
-	if err != nil {
-		return fmt.Errorf("failed to read file: %w", err)
-	}
-
-	// Check if the entry already exists
-	lines := strings.Split(string(content), "\n")
-	for _, line := range lines {
-		if strings.Contains(line, host) && strings.Contains(line, ip) {
-			return nil
-		}
-	}
-
-	// Prepare the new entry
-	newEntry := fmt.Sprintf("%s\t%s\n", ip, host)
-
-	// Use sudo to append the new entry to the /etc/hosts file
-	cmd := exec.Command("sudo", "sh", "-c", fmt.Sprintf("echo '%s' >> %s", newEntry, hostsFile))
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("failed to write ingress ip to /etc/hosts: %w", err)
-	}
-
-	return nil
-}
-
-// GetIngressIP returns the ingress IP of the given service. It is assumed that the service is of type LoadBalancer.
-// It waits for the LoadBalancer IP to be assigned with a timeout.
-func (h *Helper) GetIngressIP(ctx context.Context, namespace, name string) (string, error) {
-	const timeout = 2 * time.Minute
-	const interval = 2 * time.Second
-
-	deadline := time.Now().Add(timeout)
-	for time.Now().Before(deadline) {
-		var svc corev1.Service
-		if err := h.Get(ctx, client.ObjectKey{Namespace: namespace, Name: name}, &svc); err != nil {
-			return "", fmt.Errorf("failed to get service %s/%s: %w", namespace, name, err)
-		}
-
-		if len(svc.Status.LoadBalancer.Ingress) > 0 && svc.Status.LoadBalancer.Ingress[0].IP != "" {
-			return svc.Status.LoadBalancer.Ingress[0].IP, nil
-		}
-
-		// Wait before checking again
-		select {
-		case <-ctx.Done():
-			return "", ctx.Err()
-		case <-time.After(interval):
-			// Continue to next iteration
-		}
-	}
-
-	return "", fmt.Errorf("timeout waiting for LoadBalancer IP to be assigned to service %s/%s", namespace, name)
-}
-
 // GetPhase returns the phase of GreptimeDBCluster or GreptimeDBStandalone object.
 func (h *Helper) GetPhase(ctx context.Context, namespace, name string, object client.Object) (greptimev1alpha1.Phase, error) {
 	if err := h.Get(ctx, client.ObjectKey{Namespace: namespace, Name: name}, object); err != nil {

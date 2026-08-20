@@ -672,10 +672,6 @@ type GreptimeDBClusterSpec struct {
 	// +optional
 	Monitoring *MonitoringSpec `json:"monitoring,omitempty"`
 
-	// Ingress is the Ingress configuration of the frontend.
-	// +optional
-	Ingress *IngressSpec `json:"ingress,omitempty"`
-
 	// The global tracing configuration for all components. It can be overridden by the tracing configuration of individual component.
 	// +optional
 	Tracing *TracingSpec `json:"tracing,omitempty"`
@@ -889,13 +885,6 @@ func (in *GreptimeDBCluster) GetPrometheusMonitor() *PrometheusMonitorSpec {
 func (in *GreptimeDBCluster) GetMonitoring() *MonitoringSpec {
 	if in != nil {
 		return in.Spec.Monitoring
-	}
-	return nil
-}
-
-func (in *GreptimeDBCluster) GetIngress() *IngressSpec {
-	if in != nil {
-		return in.Spec.Ingress
 	}
 	return nil
 }

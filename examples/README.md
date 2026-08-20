@@ -19,8 +19,6 @@ The following examples suppose that you have installed the etcd cluster in the `
 - [Configure Logging](./cluster/configure-logging/cluster.yaml): Create a GreptimeDB cluster with custom logging configuration.
 - [Enable Monitoring Bootstrap](./cluster/enable-monitoring/cluster.yaml): Create a GreptimeDB cluster with monitoring enabled.
 - [Configure FrontendGroups](./cluster/configure-frontend-groups/cluster.yaml): Create a GreptimeDB cluster with custom frontend groups.
-- [Configure Frontend Ingress](./cluster/frontend-ingress/cluster.yaml): Create a GreptimeDB cluster with custom frontend ingress.
-- [Configure FrontendGroups Ingress](./cluster/frontend-groups-ingress/cluster.yaml): Create a GreptimeDB cluster with custom frontend groups ingress.
 - [MySQL Meta Backend](./cluster/mysql-meta-backend/cluster.yaml): Create a GreptimeDB cluster with MySQL as the meta backend.
 - [PostgreSQL Meta Backend](./cluster/postgresql-meta-backend/cluster.yaml): Create a GreptimeDB cluster with PostgreSQL as the meta backend.
 - [Datanode Groups](./cluster/datanode-groups/cluster.yaml): Create a GreptimeDB cluster with datanode groups.
