@@ -211,7 +211,7 @@ func (b *standaloneBuilder) BuildService() deployer.Builder {
 			Selector: map[string]string{
 				constant.GreptimeDBComponentName: common.ResourceName(b.standalone.Name, v1alpha1.StandaloneRoleKind),
 			},
-			Ports:             b.servicePorts(),
+			Ports:             b.standalone.Spec.Service.GetPorts(b.servicePorts()),
 			LoadBalancerClass: b.standalone.Spec.Service.LoadBalancerClass,
 		},
 	}
