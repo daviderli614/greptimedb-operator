@@ -166,7 +166,7 @@ func (b *frontendBuilder) generateService(frontend *v1alpha1.FrontendSpec) {
 			Selector: map[string]string{
 				constant.GreptimeDBComponentName: name,
 			},
-			Ports:             b.servicePorts(frontend),
+			Ports:             frontend.Service.GetPorts(b.servicePorts(frontend)),
 			LoadBalancerClass: frontend.Service.LoadBalancerClass,
 		},
 	}

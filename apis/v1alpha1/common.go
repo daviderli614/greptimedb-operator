@@ -710,6 +710,20 @@ type ServiceSpec struct {
 	// LoadBalancerClass is the class of the load balancer.
 	// +optional
 	LoadBalancerClass *string `json:"loadBalancerClass,omitempty"`
+
+	// Ports is the list of ports exposed by the service. If not set, the
+	// operator generates the default ports based on the component configuration.
+	// +optional
+	Ports []corev1.ServicePort `json:"ports,omitempty"`
+}
+
+// GetPorts returns the ports exposed by the service. If no ports are configured,
+// the given default ports are returned.
+func (in *ServiceSpec) GetPorts(defaultPorts []corev1.ServicePort) []corev1.ServicePort {
+	if in != nil && len(in.Ports) > 0 {
+		return in.Ports
+	}
+	return defaultPorts
 }
 
 // TLSSpec defines the TLS configurations for the component.
