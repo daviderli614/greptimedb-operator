@@ -1110,7 +1110,7 @@ _Appears in:_
 | `annotations` _object (keys:string, values:string)_ | Annotations is the annotations for the service. |  |  |
 | `labels` _object (keys:string, values:string)_ | Labels is the labels for the service. |  |  |
 | `loadBalancerClass` _string_ | LoadBalancerClass is the class of the load balancer. |  |  |
-| `ports` _[ServicePort](https://kubernetes.io/docs/reference/generated/kubernetes-api/v/#serviceport-v1-core) array_ | Ports is the list of ports exposed by the service. If not set, the<br />operator generates the default ports based on the component configuration. |  |  |
+| `ports` _[ServicePort](https://kubernetes.io/docs/reference/generated/kubernetes-api/v/#serviceport-v1-core) array_ | Ports is the list of ports exposed by the service. If not set, the<br />operator generates the default ports based on the component configuration.<br />If set, it completely replaces the default ports, and you need to ensure<br />that targetPort corresponds to the container port. |  |  |
 
 
 #### SlimPodSpec
