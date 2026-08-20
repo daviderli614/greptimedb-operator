@@ -713,6 +713,8 @@ type ServiceSpec struct {
 
 	// Ports is the list of ports exposed by the service. If not set, the
 	// operator generates the default ports based on the component configuration.
+	// If set, it completely replaces the default ports, and you need to ensure
+	// that targetPort corresponds to the container port.
 	// +optional
 	Ports []corev1.ServicePort `json:"ports,omitempty"`
 }
