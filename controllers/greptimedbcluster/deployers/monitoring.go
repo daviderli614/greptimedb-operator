@@ -153,8 +153,6 @@ func (d *MonitoringDeployer) createPipeline(cluster *v1alpha1.GreptimeDBCluster,
 	w.Close()
 
 	standaloneName := common.ResourceName(common.MonitoringServiceName(cluster.Name), v1alpha1.StandaloneRoleKind)
-
-	// FIXME(zyy17): Make the port configurable.
 	svc := fmt.Sprintf("%s.%s.svc.cluster.local:%d", standaloneName, cluster.Namespace, cluster.Spec.Monitoring.Standalone.HTTPPort)
 	hc := &http.Client{
 		Timeout: 5 * time.Second,
