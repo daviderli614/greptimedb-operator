@@ -29,10 +29,6 @@ REGISTRY_PORT=5001
 ETCD_NAMESPACE=etcd-cluster
 ETCD_CHART_VERSION=12.0.8
 
-# The argument for deploying ingress nginx controller.
-INGRESS_NGINX_CONTROLLER_NAMESPACE=ingress-nginx
-INGRESS_NGINX_CONTROLLER_CHART_VERSION=4.12.0
-
 # The argument for deploying Kafka cluster.
 KAFKA_NAMESPACE=kafka
 KAFKA_CHART_VERSION=31.0.0
@@ -255,21 +251,6 @@ function deploy_mysql() {
     --from-literal=password="$MYSQL_ROOT_PASSWORD"
 }
 
-# Deploy ingress nginx controller that used for frontend ingress testing.
-function deploy_ingress_nginx_controller() {
-  echo -e "${GREEN}=> Deploy ingress nginx controller...${RESET}"
-  helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-  helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx \
-    --namespace "$INGRESS_NGINX_CONTROLLER_NAMESPACE" \
-    --set controller.ingressClassResource.enabled=true \
-    --set controller.ingressClassResource.name=nginx \
-    --set controller.ingressClassResource.controllerValue=k8s.io/ingress-nginx \
-    --set controller.ingressClass=nginx \
-    --create-namespace \
-    --version "$INGRESS_NGINX_CONTROLLER_CHART_VERSION"
-  echo -e "${GREEN}<= Ingress nginx controller is deployed.${RESET}"
-}
-
 # Deploy Kafka cluster used for remote WAL testing.
 function deploy_kafka_cluster() {
   echo -e "${GREEN}=> Deploy Kafka cluster...${RESET}"
@@ -374,13 +355,6 @@ function wait_all_service_ready() {
     -n "$MYSQL_NAMESPACE" \
     --timeout="$DEFAULT_TIMEOUT"
 
-  # Wait for ingress nginx controller to be ready.
-  kubectl wait \
-    --for=condition=Ready \
-    pod -l app.kubernetes.io/instance=ingress-nginx \
-    -n "$INGRESS_NGINX_CONTROLLER_NAMESPACE" \
-    --timeout="$DEFAULT_TIMEOUT"
-
   # Wait for kafka to be ready.
   kubectl wait \
       --for=condition=Ready \
@@ -415,7 +389,6 @@ function main() {
   deploy_etcd_cluster
   deploy_postgresql
   deploy_mysql
-  deploy_ingress_nginx_controller
   deploy_kafka_cluster
   wait_all_service_ready
 }
